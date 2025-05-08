@@ -2,10 +2,35 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 #include "imgui.h"
 #include "imgui-SFML.h"
+
+class MovingShape {
+public:
+	std::unique_ptr<sf::Shape> shape;
+	sf::Vector2f velocity;
+
+	MovingShape(std::unique_ptr<sf::Shape> s, sf::Vector2f vel)
+		: shape(std::move(s)), velocity(vel) {
+	}
+
+	void update(float windowWidth, float windowHeight) {
+		shape->move(velocity);
+
+		/* Bounce logic
+		sf::FloatRect bounds = shape->getGlobalBounds();
+		if (bounds.left <= 0 || bounds.left + bounds.width >= windowWidth) {
+			velocity.x *= -1;
+		}
+		if (bounds.top <= 0 || bounds.top + bounds.height >= windowHeight) {
+			velocity.y *= -1;
+		}
+		*/
+	}
+};
 
 int main()
 {
@@ -16,12 +41,23 @@ int main()
 		return 1;
 	}
 
+	// window
 	std::string type;
 	unsigned int wWidth = 1280, wHeight = 720;
-
+	// font
 	std::string fontFile;
 	unsigned int fontSize = 12;
 	int fontR = 0, fontG = 0, fontB = 0;
+	// shape
+	std::string shapeName;
+	float initPosX, initPosY;
+	float initSpeedX, initSpeedY;
+	int shapeR, shapeG, shapeB;
+	float recW, recH;
+	float circleR;
+	int circleSegments = 32;
+
+	std::vector<MovingShape> shapes;
 	while (dataFile >> type)
 	{
 		if (type == "Window")
@@ -34,11 +70,19 @@ int main()
 		}
 		else if (type == "Circle")
 		{
-
+			dataFile >> shapeName >> initPosX >> initPosY >> initSpeedX >> initSpeedY >> shapeR >> shapeG >> shapeB >> recW >> recH;
+			shapes.emplace_back(
+				std::make_unique<sf::CircleShape>(circleR),
+				sf::Vector2f(initSpeedX, initSpeedY)
+			);
 		}
 		else if (type == "Rectangle")
 		{
-
+			dataFile >> shapeName >> initPosX >> initPosY >> initSpeedX >> initSpeedY >> shapeR >> shapeG >> shapeB >> circleR;
+			shapes.emplace_back(
+				std::make_unique<sf::RectangleShape>(sf::Vector2f(recW, recH)),
+				sf::Vector2f(initSpeedX, initSpeedY)
+			);
 		}
 	}
 	dataFile.close();
@@ -60,7 +104,6 @@ int main()
 	float c[3] = { 0.0f, 1.0f, 1.0f };
 
 	float circleRadius = 50;
-	int circleSegments = 32;
 	float circleSpeedX = 1.0f;
 	float circleSpeedY = 0.5f;
 	bool drawCircle = true;
