@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include <fstream>
 
 #include <SFML/Graphics.hpp>
@@ -13,7 +12,12 @@ int main()
 	sf::RenderWindow window(sf::VideoMode({ wWidth, wHeight }), "SFML works!");
 	window.setFramerateLimit(60);
 
-	ImGui::SFML::Init(window);
+	
+	if (!ImGui::SFML::Init(window))
+	{
+		std::cerr << "Could not initialize window!" << std::endl;
+		exit(-1);
+	}
 	sf::Clock deltaClock;
 
 	ImGui::GetStyle().ScaleAllSizes(2.0f);
@@ -28,11 +32,11 @@ int main()
 	bool drawCircle = true;
 	bool drawText = true;
 
+	// init position prior to game loop
 	sf::CircleShape circle(circleRadius, circleSegments);
 	circle.setPosition({ 10.0f, 10.0f });
 
 	sf::Font myFont;
-
 	if (!myFont.openFromFile("fonts/font.otf"))
 	{
 		std::cerr << "Could not load front!" << std::endl;
@@ -40,7 +44,6 @@ int main()
 	}
 
 	sf::Text text(myFont, "Sample Text", 24);
-
 	text.setPosition({ 0, wHeight - (float)text.getCharacterSize() });
 	char displayString[255] = "SampleText";
 
@@ -53,10 +56,12 @@ int main()
 			{
 				window.close();
 			}
-			else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+			else if (const sf::Event::KeyPressed* keyPressed = event->getIf<sf::Event::KeyPressed>())
 			{
 				if (keyPressed->scancode == sf::Keyboard::Scancode::X)
 					circleSpeedX *= -1.0f;
+				else if (keyPressed->scancode == sf::Keyboard::Scancode::Y)
+					circleSpeedY *= -1.0f;
 			}
 		}
 
