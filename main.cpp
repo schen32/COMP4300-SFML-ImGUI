@@ -1,40 +1,106 @@
+#include <iostream>
+#include <memory>
+#include <fstream>
+
+#include <SFML/Graphics.hpp>
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/System/Clock.hpp>
-#include <SFML/Window/Event.hpp>
+int main()
+{
+	const int wWidth = 1280;
+	const int wHeight = 720;
+	sf::RenderWindow window(sf::VideoMode({ wWidth, wHeight }), "SFML works!");
+	window.setFramerateLimit(60);
 
-int main() {
-    sf::RenderWindow window(sf::VideoMode({ 640, 480 }), "ImGui + SFML = <3");
-    window.setFramerateLimit(60);
-    ImGui::SFML::Init(window);
+	ImGui::SFML::Init(window);
+	sf::Clock deltaClock;
 
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+	ImGui::GetStyle().ScaleAllSizes(2.0f);
+	ImGui::GetIO().FontGlobalScale = 2.0f;
 
-    sf::Clock deltaClock;
-    while (window.isOpen()) {
-        while (const auto event = window.pollEvent()) {
-            ImGui::SFML::ProcessEvent(window, *event);
+	float c[3] = { 0.0f, 1.0f, 1.0f };
 
-            if (event->is<sf::Event::Closed>()) {
-                window.close();
-            }
-        }
+	float circleRadius = 50;
+	int circleSegments = 32;
+	float circleSpeedX = 1.0f;
+	float circleSpeedY = 0.5f;
+	bool drawCircle = true;
+	bool drawText = true;
 
-        ImGui::SFML::Update(window, deltaClock.restart());
+	sf::CircleShape circle(circleRadius, circleSegments);
+	circle.setPosition({ 10.0f, 10.0f });
 
-        ImGui::Begin("Hello, world!");
-        ImGui::Button("Look at this pretty button");
-        ImGui::End();
+	sf::Font myFont;
 
-        window.clear();
-        window.draw(shape);
-        ImGui::SFML::Render(window);
-        window.display();
-    }
+	if (!myFont.openFromFile("fonts/font.otf"))
+	{
+		std::cerr << "Could not load front!" << std::endl;
+		exit(-1);
+	}
 
-    ImGui::SFML::Shutdown();
+	sf::Text text(myFont, "Sample Text", 24);
+
+	text.setPosition({ 0, wHeight - (float)text.getCharacterSize() });
+	char displayString[255] = "SampleText";
+
+	while (window.isOpen())
+	{
+		while (const std::optional<sf::Event> event = window.pollEvent())
+		{
+			ImGui::SFML::ProcessEvent(window, *event);
+			if (event->is<sf::Event::Closed>())
+			{
+				window.close();
+			}
+			else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+			{
+				if (keyPressed->scancode == sf::Keyboard::Scancode::X)
+					circleSpeedX *= -1.0f;
+			}
+		}
+
+		ImGui::SFML::Update(window, deltaClock.restart());
+
+		ImGui::Begin("Window title");
+		ImGui::Text("Window text!");
+		ImGui::Checkbox("Draw Circle", &drawCircle);
+		ImGui::SameLine();
+		ImGui::Checkbox("Draw Text", &drawText);
+		ImGui::SliderFloat("Radius", &circleRadius, 0.0f, 300.0f);
+		ImGui::SliderInt("Sides", &circleSegments, 3, 64);
+		ImGui::ColorEdit3("Color Circle", c);
+		ImGui::InputText("Text", displayString, 255);
+		if (ImGui::Button("Set Text"))
+		{
+			text.setString(displayString);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset Circle"))
+		{
+			circle.setPosition({ 0, 0 });
+		}
+		ImGui::End();
+
+		circle.setPointCount(circleSegments);
+		circle.setRadius(circleRadius);
+
+		circle.setFillColor(sf::Color(std::uint8_t(c[0] * 255), std::uint8_t(c[1] * 255), std::uint8_t(c[2] * 255)));
+
+		circle.setPosition(circle.getPosition() + sf::Vector2f(circleSpeedX, circleSpeedY));
+
+		window.clear();
+		if (drawCircle)
+		{
+			window.draw(circle);
+		}
+		if (drawText)
+		{
+			window.draw(text);
+		}
+		ImGui::SFML::Render(window);
+		window.display();
+	}
+
+	return 0;
 }
