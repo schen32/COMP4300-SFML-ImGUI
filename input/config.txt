@@ -1,5 +1,5 @@
-Window 1280 720  
-Font fonts/font.otf 18 255 255 255  
+Window 1920 1080
+Font fonts/font.otf 50 255 100 50  
 Circle CGreen 100 100 -3 2 0 255 0 50  
 Circle CBlue 200 200 2 4 0 0 255 100  
 Circle CPurple 300 300 -2 -1 255 0 255 75  

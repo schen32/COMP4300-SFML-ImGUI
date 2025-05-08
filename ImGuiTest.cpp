@@ -5,11 +5,16 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <iostream>
 
 int imGuiTest() {
     sf::RenderWindow window(sf::VideoMode({ 640, 480 }), "ImGui + SFML = <3");
     window.setFramerateLimit(60);
-    ImGui::SFML::Init(window);
+    if (!(ImGui::SFML::Init(window)))
+    {
+        std::cerr << "Could not load front!" << std::endl;
+        exit(-1);
+    }
 
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);

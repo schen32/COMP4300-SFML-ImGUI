@@ -39,7 +39,7 @@ public:
 	}
 };
 
-int main()
+int vec2()
 {
 	Vec2 v1(100, 200);
 	Vec2 v2(500, 500);
