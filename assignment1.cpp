@@ -12,12 +12,13 @@ class MovingShape {
 public:
 	std::unique_ptr<sf::Shape> shape;
 	sf::Vector2f velocity;
+	std::string name;
 
-	MovingShape(std::unique_ptr<sf::Shape> s, sf::Vector2f vel)
-		: shape(std::move(s)), velocity(vel) {
+	MovingShape(std::unique_ptr<sf::Shape> s, sf::Vector2f vel, std::string name)
+		: shape(std::move(s)), velocity(vel), name(name) {
 	}
 
-	void update(float windowWidth, float windowHeight) {
+	void update(int windowWidth, int windowHeight) {
 		shape->move(velocity);
 
 		// Bounce logic
@@ -78,7 +79,8 @@ int main()
 
 			shapes.emplace_back(
 				std::move(circle),
-				sf::Vector2f(initSpeedX, initSpeedY)
+				sf::Vector2f(initSpeedX, initSpeedY),
+				shapeName
 			);
 		}
 		else if (type == "Rectangle")
@@ -92,7 +94,8 @@ int main()
 
 			shapes.emplace_back(
 				std::move(rect),
-				sf::Vector2f(initSpeedX, initSpeedY)
+				sf::Vector2f(initSpeedX, initSpeedY),
+				shapeName
 			);
 		}
 	}
