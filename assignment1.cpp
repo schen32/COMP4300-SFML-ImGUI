@@ -20,15 +20,14 @@ public:
 	void update(float windowWidth, float windowHeight) {
 		shape->move(velocity);
 
-		/* Bounce logic
+		// Bounce logic
 		sf::FloatRect bounds = shape->getGlobalBounds();
-		if (bounds.left <= 0 || bounds.left + bounds.width >= windowWidth) {
+		if (bounds.position.x <= 0 || bounds.position.x + bounds.size.x >= windowWidth) {
 			velocity.x *= -1;
 		}
-		if (bounds.top <= 0 || bounds.top + bounds.height >= windowHeight) {
+		if (bounds.position.y <= 0 || bounds.position.y + bounds.size.y >= windowHeight) {
 			velocity.y *= -1;
 		}
-		*/
 	}
 };
 
