@@ -5,7 +5,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-int main()
+int assignment1()
 {
 	const int wWidth = 1280;
 	const int wHeight = 720;
