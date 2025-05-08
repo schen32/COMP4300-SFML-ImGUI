@@ -70,17 +70,29 @@ int main()
 		}
 		else if (type == "Circle")
 		{
-			dataFile >> shapeName >> initPosX >> initPosY >> initSpeedX >> initSpeedY >> shapeR >> shapeG >> shapeB >> recW >> recH;
+			dataFile >> shapeName >> initPosX >> initPosY >> initSpeedX >> initSpeedY
+				>> shapeR >> shapeG >> shapeB >> circleR;  // Fixed: using circleR
+
+			auto circle = std::make_unique<sf::CircleShape>(circleR);
+			circle->setPosition({ initPosX, initPosY });
+			circle->setFillColor(sf::Color(shapeR, shapeG, shapeB));
+
 			shapes.emplace_back(
-				std::make_unique<sf::CircleShape>(circleR),
+				std::move(circle),
 				sf::Vector2f(initSpeedX, initSpeedY)
 			);
 		}
 		else if (type == "Rectangle")
 		{
-			dataFile >> shapeName >> initPosX >> initPosY >> initSpeedX >> initSpeedY >> shapeR >> shapeG >> shapeB >> circleR;
+			dataFile >> shapeName >> initPosX >> initPosY >> initSpeedX >> initSpeedY
+				>> shapeR >> shapeG >> shapeB >> recW >> recH;  // Fixed: using recW and recH
+
+			auto rect = std::make_unique<sf::RectangleShape>(sf::Vector2f(recW, recH));
+			rect->setPosition({ initPosX, initPosY });
+			rect->setFillColor(sf::Color(shapeR, shapeG, shapeB));
+
 			shapes.emplace_back(
-				std::make_unique<sf::RectangleShape>(sf::Vector2f(recW, recH)),
+				std::move(rect),
 				sf::Vector2f(initSpeedX, initSpeedY)
 			);
 		}
@@ -177,8 +189,18 @@ int main()
 
 		circle.setPosition(circle.getPosition() + sf::Vector2f(circleSpeedX, circleSpeedY));
 
+		for (auto& shape : shapes)
+		{
+			shape.update(wWidth, wHeight);
+		}
+
 		// draw and render
 		window.clear();
+		for (auto& shape : shapes)
+		{
+			window.draw(*shape.shape);
+		}
+
 		if (drawCircle)
 		{
 			window.draw(circle);
